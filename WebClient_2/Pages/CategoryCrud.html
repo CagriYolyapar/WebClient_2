@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Scripts/jquery-1.9.1.js"></script>
+    <link href="../Content/bootstrap.css" rel="stylesheet" />
+    <script src="../Scripts/bootstrap.js"></script>
+
+    <style>
+        .genislik{
+            width:300px
+        }
+    </style>
+
+
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-6">
+                ID => <input type="text" class="form-control genislik" id="txtID" placeholder="ID giriniz" />
+                Name => <input type="text" class="form-control genislik" id="txtName" placeholder="Kategori ismi" />
+                Description => <input type="text" class="form-control genislik" id="txtDesc" placeholder="Aciklama" />
+                <hr />
+                <input type="button" id="btnAll" class="btn btn-info" value="Kategorileri Getir" />
+                <input type="button" id="btnID" class="btn btn-primary" value="Kategori Getir" />
+
+                <hr />
+
+                <input type="button" id="btnAdd" class="btn btn-info" value="Kategori Ekle" />
+                <input type="button" id="btnDelete" class="btn btn-danger" value="Kategori Sil" />
+                <input type="button" id="btnUpdate" class="btn btn-warning" value="Kategori Güncelle" />
+
+                <hr />
+
+                <input type="text" id="txtSearch" class="form-control genislik" placeholder="Arama yapınız" />
+
+
+
+            </div>
+
+            <div class="col-md-6">
+                <table id="tab1" class="table table-hover">
+                    <tr>
+                        <th>Kategori ID</th>
+                        <th>Kategori Ismi</th>
+                        <th>Kategori Acıklaması</th>
+                        <th>Urun Sayısı</th>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!--https://localhost:44346/-->
+
+    <script>
+
+        //Bu fonksiyonumuz Table'imizdeki ilk tr dısındaki tüm tr'leri temizliyor
+        //document.getElementsById("tab1");
+
+        function ControlHeader() {
+             //Jquery kullanma sembolü $ sembolüdür... Biz bu sembolü kullandıgımız anda Jquery kullandıgımızı belirtiyoruz...
+
+            $("#tab1").find("tr:gt(0)").remove(); //burada tr:gt(0) ifadesi: "Table row must be greater than 0 index and they will be removed"... Yani tr'sinin indexi 0'dan büyük olan tüm tr yapılarını bul ve sil anlamına gelir...
+        }
+
+
+
+        //Bu fonksiyonumuzun amacı API'a gittigimiz ve veri aldıgımız  zaman o verileri tablomuzun icerisine entegre etmektir
+
+        function BringDataList(dataList) {
+            ControlHeader();
+
+            $.each(dataList, function (key, data) {
+                $("#tab1").append("<tr><td>"+data.ID+" </td> <td>"+data.Name+" </td> <td> "+data.Description+"</td> <td>"+data.ProductCount+" </td> </tr>");
+            })
+        }
+
+        //Bu fonksiyonumuzun amacı API'ya gittigimiz zaman aldıgımız tekil veriyi tasarımda tablomuzun icerisine entegre etmektir...
+
+
+        function BringData(data) {
+            $("#tab1").append("<tr><td>" + data.ID + " </td> <td>" + data.Name + " </td> <td> " + data.Description + "</td> <td>" + data.ProductCount + " </td> </tr>");
+        }
+
+
+
+        $(function ()
+        {
+
+            //Kategorileri Listelemek 
+
+            $("#btnAll").click(function () {
+
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/ListCategories",
+                    type: "Get",
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+
+
+            })
+
+
+
+
+
+        })
+
+
+    </script>
+
+
+</body>
+</html>
