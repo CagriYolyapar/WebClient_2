@@ -8,8 +8,8 @@
     <script src="../Scripts/bootstrap.js"></script>
 
     <style>
-        .genislik{
-            width:300px
+        .genislik {
+            width: 300px
         }
     </style>
 
@@ -21,9 +21,13 @@
         <div class="row">
 
             <div class="col-md-6">
+
                 ID => <input type="text" class="form-control genislik" id="txtID" placeholder="ID giriniz" />
+
                 Name => <input type="text" class="form-control genislik" id="txtName" placeholder="Kategori ismi" />
+
                 Description => <input type="text" class="form-control genislik" id="txtDesc" placeholder="Aciklama" />
+
                 <hr />
                 <input type="button" id="btnAll" class="btn btn-info" value="Kategorileri Getir" />
                 <input type="button" id="btnID" class="btn btn-primary" value="Kategori Getir" />
@@ -36,7 +40,7 @@
 
                 <hr />
 
-                <input type="text" id="txtSearch" class="form-control genislik" placeholder="Arama yapınız" />
+                <input type="text" id="txtSearch" class="form-control genislik" placeholder="Arama yapınız"/>
 
 
 
@@ -49,6 +53,7 @@
                         <th>Kategori Ismi</th>
                         <th>Kategori Acıklaması</th>
                         <th>Urun Sayısı</th>
+                        <th colspan="3" style="text-align:center">Islemler</th>
                     </tr>
                 </table>
             </div>
@@ -65,7 +70,7 @@
         //document.getElementsById("tab1");
 
         function ControlHeader() {
-             //Jquery kullanma sembolü $ sembolüdür... Biz bu sembolü kullandıgımız anda Jquery kullandıgımızı belirtiyoruz...
+            //Jquery kullanma sembolü $ sembolüdür... Biz bu sembolü kullandıgımız anda Jquery kullandıgımızı belirtiyoruz...
 
             $("#tab1").find("tr:gt(0)").remove(); //burada tr:gt(0) ifadesi: "Table row must be greater than 0 index and they will be removed"... Yani tr'sinin indexi 0'dan büyük olan tüm tr yapılarını bul ve sil anlamına gelir...
         }
@@ -78,7 +83,7 @@
             ControlHeader();
 
             $.each(dataList, function (key, data) {
-                $("#tab1").append("<tr><td>"+data.ID+" </td> <td>"+data.Name+" </td> <td> "+data.Description+"</td> <td>"+data.ProductCount+" </td> </tr>");
+                $("#tab1").append("<tr><td>" + data.ID + " </td> <td>" + data.Name + " </td> <td> " + data.Description + "</td> <td>" + data.ProductCount + " </td> <td><button data-id='" + data.ID + "' id='update" + data.ID + "' value='update' class='btn btn-warning'>Güncelle </button> </td><td> <button class='btn btn-danger' id='delete" + data.ID + "' value='delete' data-id='" + data.ID + "'> Sil </button> </td> <td> <button class='btn btn-info' data-id='" + data.ID + "' id='select" + data.ID + "' value='select'>Seç </button> </td> </tr>");
             })
         }
 
@@ -86,15 +91,21 @@
 
 
         function BringData(data) {
-            $("#tab1").append("<tr><td>" + data.ID + " </td> <td>" + data.Name + " </td> <td> " + data.Description + "</td> <td>" + data.ProductCount + " </td> </tr>");
+            ControlHeader();
+            $("#tab1").append("<tr><td>" + data.ID + " </td> <td>" + data.Name + " </td> <td> " + data.Description + "</td> <td>" + data.ProductCount + " </td> <td><button data-id='" + data.ID + "' id='update" + data.ID + "' value='update' class='btn btn-warning'>Güncelle </button> </td><td> <button class='btn btn-danger' id='delete" + data.ID + "' value='delete' data-id='" + data.ID + "'> Sil </button> </td> <td> <button class='btn btn-info' data-id='" + data.ID + "' id='select" + data.ID + "' value='select'>Seç </button> </td> </tr>");
         }
 
 
+        function FetchData(data) {
+            $("#txtID").val(data.ID);
+            $("#txtName").val(data.Name);
+            $("#txtDesc").val(data.Description);
+        }
 
-        $(function ()
-        {
 
-            //Kategorileri Listelemek 
+        $(function () {
+
+            //Kategorileri Listelemek
 
             $("#btnAll").click(function () {
 
@@ -109,6 +120,129 @@
 
             })
 
+
+            //Kategori Getir
+
+            $("#btnID").click(function () {
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/BringCategory", //burada dilerseniz data parametresinde JSon verisi göndermek yerine URL'e direkt /$("#txtID").val() yazılabilir....Ama sakın BringCategory'den sonra slash koymayı unutmayın... Ve bir de bu ancak gitmek istediginiz metodun parametresinin ismi id ise gecerlidir... Aksi halde querystring kullanmanız gerekir.
+                    data: { id: $("#txtID").val() },
+                    type: "Get",
+                    success: function (data) {
+                        BringData(data);
+                    }
+                })
+            })
+
+
+            //Kategori Ekle
+
+            $("#btnAdd").click(function () {
+
+                $.ajax({
+                    
+                    url: "https://localhost:44346/api/Category/AddCategory",
+                    type: "Post",
+                    data: { CategoryName: $("#txtName").val(), Description: $("#txtDesc").val() },
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+
+
+            })
+
+            //Kategori Sil
+
+            //Delete yöntemlerinde Data ile server'a  veri gönderemezsiniz...O yüzden mecburi bir şekilde ID verisini URL'den vermeniz gerekir...
+
+            $("#btnDelete").click(function () {
+
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/DeleteCategory/" + $("#txtID").val(),
+                    type: "Delete",
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+
+
+            })
+
+
+            //Kategori Güncelle
+
+            $("#btnUpdate").click(function () {
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/UpdateCategory",
+                    data: { CategoryID: $("#txtID").val(), CategoryName: $("#txtName").val(), Description: $("#txtDesc").val() },
+                    type: "Put",
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+            })
+
+
+            //JS Runtime EventHandling
+
+            //Select button
+
+            $("#tab1").on("click", "[value=select]", function () {
+
+
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/BringCategory",
+                    data: { id: $(this).attr("data-id") },
+                    type: "Get",
+                    success: function (data) {
+                        FetchData(data);
+                    }
+                })
+
+
+            })
+
+
+            //Delete Button
+
+            $("#tab1").on("click", "[value=delete]", function () {
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/DeleteCategory/" + $(this).attr("data-id"),
+                    type: "Delete",
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+            })
+
+            //Update Button
+
+            $("#tab1").on("click", "[value=update]", function () {
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/UpdateCategory",
+                    data: { CategoryID: $(this).attr("data-id"), CategoryName: $("#txtName").val(), Description: $("#txtDesc").val() },
+                    type: "Put",
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+            })
+
+            //Search Category
+            $("#txtSearch").keyup(function () {
+
+
+                $.ajax({
+                    url: "https://localhost:44346/api/Category/SearchCategory",
+                    data: { item: $(this).val() },
+                    type: "Get",
+                    success: function (data) {
+                        BringDataList(data);
+                    }
+                })
+
+            })
 
 
 
